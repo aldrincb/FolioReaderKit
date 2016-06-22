@@ -306,7 +306,7 @@ class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UICollectio
         // Subtle Volume
         volume = SubtleVolume(style: .Plain)
         volume.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 4)
-        volume.barTintColor = .redColor()
+        volume.barTintColor = readerConfig.tintColor
         volume.barBackgroundColor = UIColor.whiteColor().colorWithAlphaComponent(0.3)
         volume.animation = .FadeIn
         view.addSubview(volume)
