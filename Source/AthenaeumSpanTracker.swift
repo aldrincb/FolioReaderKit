@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol AthenaeumSpanTrackerDelegate {
+protocol AthenaeumSpanTrackerDelegate: class {
     /**
      Notifies that the reader stopped scrolling
      */
@@ -16,11 +16,10 @@ protocol AthenaeumSpanTrackerDelegate {
 }
 
 class AthenaeumSpanTracker: NSObject {
-    weak var delegate: AthenaeumSpanTrackerDelegate!
     var currentSpan: Int!
     
+    weak var delegate: AthenaeumSpanTrackerDelegate!
     static let sharedInstance = AthenaeumSpanTracker()
-    private init() {} // This prevents others from using the default '()' initializer for this class.
 
     /**
      Reader stopped scrolling
