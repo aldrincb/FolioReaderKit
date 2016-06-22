@@ -8,7 +8,6 @@
 
 import UIKit
 import ZFDragableModalTransition
-import AthenaeumSpanTracker
 
 let reuseIdentifier = "Cell"
 var isScrolling = false
