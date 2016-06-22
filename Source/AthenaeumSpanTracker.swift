@@ -16,7 +16,7 @@ protocol AthenaeumSpanTrackerDelegate: class {
 }
 
 class AthenaeumSpanTracker: NSObject {
-    var currentSpan: Int!
+    var currentSpan: String!
     
     weak var delegate: AthenaeumSpanTrackerDelegate!
     static let sharedInstance = AthenaeumSpanTracker()
