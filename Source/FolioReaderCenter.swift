@@ -190,6 +190,9 @@ class ScrollScrubber: NSObject, UIScrollViewDelegate {
         NSRunLoop.currentRunLoop().addTimer(scrollDeltaTimer, forMode: NSRunLoopCommonModes)
         
         // Test
+        let chapter = getCurrentChapter()
+        let href = chapter != nil ? chapter!.href : "";
+        print(href)
     }
     
     
