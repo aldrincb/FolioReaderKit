@@ -188,11 +188,6 @@ class ScrollScrubber: NSObject, UIScrollViewDelegate {
     func scrollViewDidEndScrollingAnimation(scrollView: UIScrollView) {
         scrollDeltaTimer = NSTimer(timeInterval:0.5, target: self, selector: #selector(ScrollScrubber.resetScrollDelta), userInfo: nil, repeats: false)
         NSRunLoop.currentRunLoop().addTimer(scrollDeltaTimer, forMode: NSRunLoopCommonModes)
-        
-        // Test
-        let chapter = getCurrentChapter()
-        let href = chapter != nil ? chapter!.href : "";
-        print(href)
     }
     
     
@@ -1067,6 +1062,11 @@ class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UICollectio
 
     func scrollViewDidEndScrollingAnimation(scrollView: UIScrollView) {
         scrollScrubber.scrollViewDidEndScrollingAnimation(scrollView)
+        
+        // Test
+        let chapter = getCurrentChapter()
+        let href = chapter != nil ? chapter!.href : "";
+        print(href)
     }
     
     // MARK: - Container delegate
