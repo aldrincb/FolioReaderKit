@@ -8,8 +8,6 @@
 
 import Foundation
 
-
-
 protocol AthenaeumSpanTrackerDelegate {
     /**
      Notifies that the reader stopped scrolling
