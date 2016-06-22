@@ -211,7 +211,7 @@ function getSpan() {
     }
     
     var URLBase = "visible-span://"
-    window.location = URLBase + (fragmentID?encodeURIComponent(node):"")
+    window.location = URLBase + (fragmentID?encodeURIComponent(node.id):"")
 }
 
 
