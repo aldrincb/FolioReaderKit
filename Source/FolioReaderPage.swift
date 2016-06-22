@@ -105,9 +105,7 @@ class FolioReaderPage: UICollectionViewCell, UIWebViewDelegate, UIGestureRecogni
     
     // MARK: - AthenaeumSpanTrackerDelegate
     func readerStoppedScrolling() {
-        let decoded = url?.absoluteString.stringByRemovingPercentEncoding as String!
-        let currentSpan = decoded.substringFromIndex(decoded.startIndex.advancedBy(13))
-        AthenaeumSpanTracker.sharedInstance.currentSpan = currentSpan
+        webView.js("getSpan()")
     }
     
     // MARK: - UIWebView Delegate
@@ -221,6 +219,10 @@ class FolioReaderPage: UICollectionViewCell, UIWebViewDelegate, UIGestureRecogni
             }
             
             return false
+        } else if url?.scheme == "visible-span" {
+            let decoded = url?.absoluteString.stringByRemovingPercentEncoding as String!
+            let currentSpan = decoded.substringFromIndex(decoded.startIndex.advancedBy(13))
+            print(currentSpan)
         }
         
         return true
