@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7925B9C51D1B08ED0000D1AD /* AthenaeumSpanTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7925B9C41D1B08ED0000D1AD /* AthenaeumSpanTracker.swift */; };
 		B0D6990F1D035FA2003B4CCD /* FolioReaderKit.h in Headers */ = {isa = PBXBuildFile; fileRef = B0D6990E1D035FA2003B4CCD /* FolioReaderKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B0D699161D035FA2003B4CCD /* FolioReaderKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B0D6990B1D035FA2003B4CCD /* FolioReaderKit.framework */; };
 		B0D6991B1D035FA2003B4CCD /* FolioReaderKitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D6991A1D035FA2003B4CCD /* FolioReaderKitTests.swift */; };
@@ -160,6 +161,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7925B9C41D1B08ED0000D1AD /* AthenaeumSpanTracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AthenaeumSpanTracker.swift; sourceTree = "<group>"; };
 		B0D6990B1D035FA2003B4CCD /* FolioReaderKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FolioReaderKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B0D6990E1D035FA2003B4CCD /* FolioReaderKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FolioReaderKit.h; sourceTree = "<group>"; };
 		B0D699101D035FA2003B4CCD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -387,6 +389,7 @@
 			isa = PBXGroup;
 			children = (
 				B0D69BB81D0387F7003B4CCD /* EPUBCore */,
+				7925B9C41D1B08ED0000D1AD /* AthenaeumSpanTracker.swift */,
 				B0D69BC41D0387F7003B4CCD /* FolioReaderAudioPlayer.swift */,
 				B0D69BC51D0387F7003B4CCD /* FolioReaderCenter.swift */,
 				B0D69BC61D0387F7003B4CCD /* FolioReaderConfig.swift */,
@@ -853,6 +856,7 @@
 				B0D69C4F1D0387F7003B4CCD /* FRSmilElement.swift in Sources */,
 				B0D69CC81D0387F7003B4CCD /* HADiscreteSlider.swift in Sources */,
 				B0D69C511D0387F7003B4CCD /* FRSpine.swift in Sources */,
+				7925B9C51D1B08ED0000D1AD /* AthenaeumSpanTracker.swift in Sources */,
 				B0D69C4C1D0387F7003B4CCD /* FRMetadata.swift in Sources */,
 				B0D69C481D0387F7003B4CCD /* FRBook.swift in Sources */,
 			);
