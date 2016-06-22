@@ -198,20 +198,11 @@ function findElementWithIDInView() {
  Get current span
  */
 function getSpan() {
-    var sel = getSelection();
     var node = null;
-    
-    // user selected text? start playing from the selected node
-    if (sel.toString() != "") {
-        node = sel.anchorNode ? findElementWithID(sel.anchorNode.parentNode) : null;
-        
-        // find the first ID'd element that is within view (it will
-    } else {
-        node = findElementWithIDInView()
-    }
+    node = findElementWithIDInView()
     
     var URLBase = "visible-span://"
-    window.location = URLBase + (fragmentID?encodeURIComponent(node.id):"")
+    window.location = URLBase + (node.id?encodeURIComponent(node.id):"")
 }
 
 
