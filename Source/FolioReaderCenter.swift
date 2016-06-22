@@ -8,6 +8,7 @@
 
 import UIKit
 import ZFDragableModalTransition
+import SubtleVolume
 
 let reuseIdentifier = "Cell"
 var isScrolling = false
@@ -300,6 +301,14 @@ class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UICollectio
         loadingView.hidesWhenStopped = true
         loadingView.startAnimating()
         view.addSubview(loadingView)
+        
+        // Subtle Volume
+        volume = SubtleVolume(style: .Plain)
+        volume.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 4)
+        volume.barTintColor = .redColor()
+        volume.barBackgroundColor = UIColor.whiteColor().colorWithAlphaComponent(0.3)
+        volume.animation = .FadeIn
+        view.addSubview(volume)
     }
     
     
