@@ -223,6 +223,8 @@ class FolioReaderPage: UICollectionViewCell, UIWebViewDelegate, UIGestureRecogni
             let decoded = url?.absoluteString.stringByRemovingPercentEncoding as String!
             let currentSpan = decoded.substringFromIndex(decoded.startIndex.advancedBy(13))
             print(currentSpan)
+            
+            return false
         }
         
         return true
