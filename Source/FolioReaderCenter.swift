@@ -229,6 +229,7 @@ class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UICollectio
     
     var collectionView: UICollectionView!
     var loadingView: UIActivityIndicatorView!
+    var volume: SubtleVolume!
     var pages: [String]!
     var totalPages: Int!
     var tempFragment: String?
