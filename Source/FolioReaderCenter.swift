@@ -8,6 +8,7 @@
 
 import UIKit
 import ZFDragableModalTransition
+import AthenaeumSpanTracker
 
 let reuseIdentifier = "Cell"
 var isScrolling = false
@@ -1055,6 +1056,9 @@ class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UICollectio
     func scrollViewDidEndDragging(scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         recentlyScrolledTimer = NSTimer(timeInterval:recentlyScrolledDelay, target: self, selector: #selector(FolioReaderCenter.clearRecentlyScrolled), userInfo: nil, repeats: false)
         NSRunLoop.currentRunLoop().addTimer(recentlyScrolledTimer, forMode: NSRunLoopCommonModes)
+        
+        // Athenaeum Span Tracker
+        AthenaeumSpanTracker.sharedInstance.readerStoppedScrolling()
     }
 
     func clearRecentlyScrolled(){

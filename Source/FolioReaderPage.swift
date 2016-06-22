@@ -10,12 +10,13 @@ import UIKit
 import SafariServices
 import UIMenuItem_CXAImageSupport
 import JSQWebViewController
+import AthenaeumSpanTracker
 
 @objc protocol FolioPageDelegate: class {
     optional func pageDidLoad(page: FolioReaderPage)
 }
 
-class FolioReaderPage: UICollectionViewCell, UIWebViewDelegate, UIGestureRecognizerDelegate, FolioReaderAudioPlayerDelegate {
+class FolioReaderPage: UICollectionViewCell, UIWebViewDelegate, UIGestureRecognizerDelegate, FolioReaderAudioPlayerDelegate, AthenaeumSpanTrackerDelegate {
     
     var pageNumber: Int!
     var webView: UIWebView!
@@ -43,6 +44,9 @@ class FolioReaderPage: UICollectionViewCell, UIWebViewDelegate, UIGestureRecogni
         tapGestureRecognizer.numberOfTapsRequired = 1
         tapGestureRecognizer.delegate = self
         webView.addGestureRecognizer(tapGestureRecognizer)
+        
+        // Athenaeum Span Tracker
+        AthenaeumSpanTracker.sharedInstance.delegate = self
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -98,6 +102,13 @@ class FolioReaderPage: UICollectionViewCell, UIWebViewDelegate, UIGestureRecogni
     // MARK: - FolioReaderAudioPlayerDelegate
     func didReadSentence() {
         self.readCurrentSentence();
+    }
+    
+    // MARK: - AthenaeumSpanTrackerDelegate
+    func readerStoppedScrolling() {
+        let decoded = url?.absoluteString.stringByRemovingPercentEncoding as String!
+        let currentSpan = decoded.substringFromIndex(decoded.startIndex.advancedBy(13))
+        AthenaeumSpanTracker.sharedInstance.currentSpan = currentSpan
     }
     
     // MARK: - UIWebView Delegate
