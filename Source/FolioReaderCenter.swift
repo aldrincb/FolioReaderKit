@@ -1044,6 +1044,11 @@ class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UICollectio
             if totalPages > 0 { updateCurrentPage() }
         }
         
+        // Test
+        let chapter = getCurrentChapter()
+        let href = chapter != nil ? chapter!.href : "";
+        print(href)
+        
         scrollScrubber.scrollViewDidEndDecelerating(scrollView)
     }
     
@@ -1062,11 +1067,6 @@ class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UICollectio
 
     func scrollViewDidEndScrollingAnimation(scrollView: UIScrollView) {
         scrollScrubber.scrollViewDidEndScrollingAnimation(scrollView)
-        
-        // Test
-        let chapter = getCurrentChapter()
-        let href = chapter != nil ? chapter!.href : "";
-        print(href)
     }
     
     // MARK: - Container delegate
