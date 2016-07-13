@@ -277,6 +277,7 @@ class FolioReaderPage: UICollectionViewCell, UIWebViewDelegate, UIGestureRecogni
             let currentSpan = decoded.substringFromIndex(decoded.startIndex.advancedBy(13))
             
             AthenaeumSpanTracker.sharedInstance.currentSpan = currentSpan
+            FolioReader.sharedInstance.readerCenter.playAmbience(currenSpan)
             
             return false
         }

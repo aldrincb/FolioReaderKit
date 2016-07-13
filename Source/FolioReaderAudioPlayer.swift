@@ -23,6 +23,7 @@ class FolioReaderAudioPlayer: NSObject, AVAudioPlayerDelegate, AVSpeechSynthesiz
     var synthesizer: AVSpeechSynthesizer!
     var playing = false
     var player: AVAudioPlayer!
+    var ambiencePlayer: AVAudioPlayer!
     var currentHref: String!
     var currentFragment: String!
     var currentSmilFile: FRSmilFile!
@@ -165,6 +166,7 @@ class FolioReaderAudioPlayer: NSObject, AVAudioPlayerDelegate, AVSpeechSynthesiz
         
         UIApplication.sharedApplication().idleTimerDisabled = true
     }
+    
 
     /**
      Play Audio (href/fragmentID)
@@ -202,6 +204,10 @@ class FolioReaderAudioPlayer: NSObject, AVAudioPlayerDelegate, AVSpeechSynthesiz
                 startPlayerTimer()
             }
         }
+    }
+    
+    func playAmbience(href: String, fragmentID: String) {
+        print("Playing href: \(href) fragment: \(fragmentID)")
     }
 
     func _autoPlayNextChapter() {
