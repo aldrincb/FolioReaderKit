@@ -19,6 +19,7 @@ class FolioReaderPage: UICollectionViewCell, UIWebViewDelegate, UIGestureRecogni
     
     var pageNumber: Int!
     var webView: UIWebView!
+    private var colorView: UIView!
     weak var delegate: FolioPageDelegate!
     private var shouldShowBar = true
     private var menuIsVisible = false
@@ -29,15 +30,34 @@ class FolioReaderPage: UICollectionViewCell, UIWebViewDelegate, UIGestureRecogni
         super.init(frame: frame)
         self.backgroundColor = UIColor.whiteColor()
         
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.refreshPageMode), name: "needRefreshPageMode", object: nil)
+        
         if webView == nil {
             webView = UIWebView(frame: webViewFrame())
             webView.autoresizingMask = [.FlexibleWidth, .FlexibleHeight]
             webView.dataDetectorTypes = [.None, .Link]
             webView.scrollView.showsVerticalScrollIndicator = false
+            webView.scrollView.showsHorizontalScrollIndicator = false
             webView.backgroundColor = UIColor.clearColor()
+            
             self.contentView.addSubview(webView)
         }
         webView.delegate = self
+        
+        if readerConfig.scrollDirection == .horizontal {
+            webView.scrollView.pagingEnabled = true
+            webView.paginationMode = .LeftToRight
+            webView.paginationBreakingMode = .Page
+            webView.scrollView.bounces = false
+        } else {
+            webView.scrollView.bounces = true
+        }
+        
+        if colorView == nil {
+            colorView = UIView();
+            colorView.backgroundColor = UIColor(rgba: "#131313")
+            webView.scrollView.addSubview(colorView);
+        }
         
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(FolioReaderPage.handleTapGesture(_:)))
         tapGestureRecognizer.numberOfTapsRequired = 1
@@ -46,10 +66,24 @@ class FolioReaderPage: UICollectionViewCell, UIWebViewDelegate, UIGestureRecogni
         
         // Athenaeum Span Tracker
         AthenaeumSpanTracker.sharedInstance.delegate = self
+
+//        var swipeLeftGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(FolioReaderPage.handleSwipeGesture(_:)))
+//        swipeLeftGestureRecognizer.direction = .Left
+//        swipeLeftGestureRecognizer.delegate = self
+//        webView.addGestureRecognizer(swipeLeftGestureRecognizer)
+//        
+//        var swipeRightGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(FolioReaderPage.handleSwipeGesture(_:)))
+//        swipeRightGestureRecognizer.direction = .Right
+//        swipeRightGestureRecognizer.delegate = self
+//        webView.addGestureRecognizer(swipeRightGestureRecognizer)
     }
 
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
+    }
+    
+    deinit {
+        NSNotificationCenter.defaultCenter().removeObserver(self)
     }
     
     override func layoutSubviews() {
@@ -59,15 +93,27 @@ class FolioReaderPage: UICollectionViewCell, UIWebViewDelegate, UIGestureRecogni
     }
     
     func webViewFrame() -> CGRect {
-        if readerConfig.shouldHideNavigationOnTap == false {
+        let paddingTop: CGFloat = 20
+        let paddingBottom: CGFloat = 30
+        
+        guard readerConfig.shouldHideNavigationOnTap else {
             let statusbarHeight = UIApplication.sharedApplication().statusBarFrame.size.height
             let navBarHeight = FolioReader.sharedInstance.readerCenter.navigationController?.navigationBar.frame.size.height
             let navTotal = statusbarHeight + navBarHeight!
-            let newFrame = CGRect(x: self.bounds.origin.x, y: self.bounds.origin.y+navTotal, width: self.bounds.width, height: self.bounds.height-navTotal)
+            let newFrame = CGRect(
+                x: bounds.origin.x,
+                y: isVerticalDirection(bounds.origin.y + navTotal, bounds.origin.y + navTotal + paddingTop),
+                width: bounds.width,
+                height: isVerticalDirection(bounds.height - navTotal, bounds.height - navTotal - paddingTop - paddingBottom))
             return newFrame
-        } else {
-            return self.bounds
         }
+        
+        let newFrame = CGRect(
+            x: bounds.origin.x,
+            y: isVerticalDirection(bounds.origin.y, bounds.origin.y + paddingTop),
+            width: bounds.width,
+            height: isVerticalDirection(bounds.height, bounds.height - paddingTop - paddingBottom))
+        return newFrame
     }
     
     func loadHTMLString(string: String!, baseURL: NSURL!) {
@@ -79,9 +125,10 @@ class FolioReaderPage: UICollectionViewCell, UIWebViewDelegate, UIGestureRecogni
         
         if highlights.count > 0 {
             for item in highlights {
-                let style = HighlightStyle.classForStyle(item.type.integerValue)
+                let style = HighlightStyle.classForStyle(item.type)
                 let tag = "<highlight id=\"\(item.highlightId)\" onclick=\"callHighlightURL(this);\" class=\"\(style)\">\(item.content)</highlight>"
-                let locator = item.contentPre + item.content + item.contentPost
+                var locator = item.contentPre + item.content + item.contentPost
+                locator = Highlight.removeSentenceSpam(locator) /// Fix for Highlights
                 let range: NSRange = html.rangeOfString(locator, options: .LiteralSearch)
                 
                 if range.location != NSNotFound {
@@ -111,6 +158,8 @@ class FolioReaderPage: UICollectionViewCell, UIWebViewDelegate, UIGestureRecogni
     // MARK: - UIWebView Delegate
     
     func webViewDidFinishLoad(webView: UIWebView) {
+        self.refreshPageMode()
+        
         if (!book.hasAudio()) {
             FolioReader.sharedInstance.readerAudioPlayer.delegate = self;
             self.webView.js("wrappingSentencesWithinPTags()");
@@ -119,11 +168,15 @@ class FolioReaderPage: UICollectionViewCell, UIWebViewDelegate, UIGestureRecogni
             }
         }
 
-        webView.scrollView.contentSize = CGSizeMake(pageWidth, webView.scrollView.contentSize.height)
+//        webView.scrollView.contentSize = CGSizeMake(pageWidth, webView.scrollView.contentSize.height)
         
-        if scrollDirection == .Down && isScrolling {
-            let bottomOffset = CGPointMake(0, webView.scrollView.contentSize.height - webView.scrollView.bounds.height)
-            if bottomOffset.y >= 0 {
+        if scrollDirection == .negative() && isScrolling {
+            let bottomOffset = isVerticalDirection(
+                CGPointMake(0, webView.scrollView.contentSize.height - webView.scrollView.bounds.height),
+                CGPointMake(webView.scrollView.contentSize.width - webView.scrollView.bounds.width, 0)
+            )
+            
+            if bottomOffset.forDirection() >= 0 {
                 dispatch_async(dispatch_get_main_queue(), {
                     webView.scrollView.setContentOffset(bottomOffset, animated: false)
                 })
@@ -276,10 +329,50 @@ class FolioReaderPage: UICollectionViewCell, UIWebViewDelegate, UIGestureRecogni
         menuIsVisible = false
     }
     
+    func handleSwipeGesture(recognizer: UISwipeGestureRecognizer) {
+        let width = self.webView.bounds.size.width
+        let currentPageNum = Int(self.webView.scrollView.contentOffset.x / width)
+        var totalPageNum = Int(self.webView.scrollView.contentSize.width / width)
+        if self.webView.scrollView.contentSize.width % width != 0 {
+            totalPageNum += 1
+        }
+        
+        switch recognizer.direction {
+        case UISwipeGestureRecognizerDirection.Left:
+            if currentPageNum < totalPageNum - 1 {
+//                self.webView.scrollView.contentOffset = CGPointMake(CGFloat(currentPageNum + 1) * width, 0)
+//                self.transition("pageCurl", subtype: kCATransitionFromRight, view: self.webView)
+            } else {
+                FolioReader.sharedInstance.readerCenter.changePageToNext()
+            }
+        case UISwipeGestureRecognizerDirection.Right:
+            if currentPageNum > 0 {
+//                self.webView.scrollView.contentOffset = CGPointMake(CGFloat(currentPageNum - 1) * width, 0)
+//                self.transition("pageCurl", subtype: kCATransitionFromLeft, view: self.webView)
+            } else {
+                if self.webView.scrollView.contentOffset.x == 0 {
+                    FolioReader.sharedInstance.readerCenter.changePageToPrevious()
+                }
+            }
+        default:
+            break
+        }
+        
+    }
+    
+    func transition(type: String, subtype: String, view: UIView) {
+        let animation = CATransition();
+        animation.duration = 0.7
+        animation.type = type
+        animation.subtype = subtype
+        animation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+        view.layer.addAnimation(animation, forKey: "animation")
+    }
+    
     // MARK: - Scroll positioning
     
     func scrollPageToOffset(offset: String, animating: Bool) {
-        let jsCommand = "window.scrollTo(0,\(offset));"
+        let jsCommand = isVerticalDirection("window.scrollTo(0,\(offset));", "window.scrollTo(\(offset),0);")
         if animating {
             UIView.animateWithDuration(0.35, animations: {
                 self.webView.js(jsCommand)
@@ -363,6 +456,19 @@ class FolioReaderPage: UICollectionViewCell, UIWebViewDelegate, UIGestureRecogni
     func audioMarkID(ID: String){
         self.webView.js("audioMarkID('\(book.playbackActiveClass())','\(ID)')");
     }
+    
+    func refreshPageMode() {
+        if FolioReader.sharedInstance.nightMode {
+            // omit create webView and colorView
+            let script = "document.documentElement.offsetHeight"
+            let contentHeight = webView.stringByEvaluatingJavaScriptFromString(script)
+            let frameHeight = webView.frame.height
+            let lastPageHeight = frameHeight * CGFloat(webView.pageCount) - CGFloat(Double(contentHeight!)!)
+            colorView.frame = CGRectMake(webView.frame.width * CGFloat(webView.pageCount-1), webView.frame.height - lastPageHeight, webView.frame.width, lastPageHeight)
+        } else {
+            colorView.frame = CGRectZero
+        }
+    }
 }
 
 // MARK: - WebView Highlight and share implementation
@@ -390,30 +496,30 @@ extension UIWebView {
 
         // menu on existing highlight
         if isShare {
-            if action == #selector(UIWebView.colors(_:)) || (action == #selector(UIWebView.share(_:)) && readerConfig?.allowSharing == true) || action == #selector(UIWebView.remove(_:)) {
+            if action == #selector(UIWebView.colors(_:)) || (action == #selector(UIWebView.share(_:)) && readerConfig.allowSharing) || action == #selector(UIWebView.remove(_:)) {
                 return true
             }
             return false
 
-            // menu for selecting highlight color
+        // menu for selecting highlight color
         } else if isColors {
             if action == #selector(UIWebView.setYellow(_:)) || action == #selector(UIWebView.setGreen(_:)) || action == #selector(UIWebView.setBlue(_:)) || action == #selector(UIWebView.setPink(_:)) || action == #selector(UIWebView.setUnderline(_:)) {
                 return true
             }
             return false
 
-            // default menu
+        // default menu
         } else {
             var isOneWord = false
             if let result = js("getSelectedText()") where result.componentsSeparatedByString(" ").count == 1 {
                 isOneWord = true
             }
-
+            
             if action == #selector(UIWebView.highlight(_:))
-                || (action == #selector(UIWebView.define(_:)) && isOneWord)
-                || (action == #selector(UIWebView.play(_:)) && (book.hasAudio() || readerConfig?.enableTTS == true))
-                || (action == #selector(UIWebView.share(_:)) && readerConfig?.allowSharing == true)
-                || (action == #selector(NSObject.copy(_:)) && readerConfig?.allowSharing == true) {
+            || (action == #selector(UIWebView.define(_:)) && isOneWord)
+            || (action == #selector(UIWebView.play(_:)) && (book.hasAudio() || readerConfig.enableTTS))
+            || (action == #selector(UIWebView.share(_:)) && readerConfig.allowSharing == true)
+            || (action == #selector(NSObject.copy(_:)) && readerConfig.allowSharing == true) {
                 return true
             }
             return false
@@ -461,6 +567,8 @@ extension UIWebView {
             let json = try NSJSONSerialization.JSONObjectWithData(jsonData!, options: []) as! NSArray
             let dic = json.firstObject as! [String: String]
             let rect = CGRectFromString(dic["rect"]!)
+            let startOffset = dic["startOffset"]!
+            let endOffset = dic["endOffset"]!
             
             // Force remove text selection
             userInteractionEnabled = false
@@ -471,8 +579,8 @@ extension UIWebView {
             
             // Persist
             let html = js("getHTML()")
-            if let highlight = FRHighlight.matchHighlight(html, andId: dic["id"]!) {
-                Highlight.persistHighlight(highlight, completion: nil)
+            if let highlight = Highlight.matchHighlight(html, andId: dic["id"]!, startOffset: startOffset, endOffset: endOffset) {
+                highlight.persist()
             }
         } catch {
             print("Could not receive JSON")
@@ -580,6 +688,7 @@ extension UIWebView {
     
     func js(script: String) -> String? {
         let callback = self.stringByEvaluatingJavaScriptFromString(script)
+        NSNotificationCenter.defaultCenter().postNotificationName("needRefreshPageMode", object: nil)
         if callback!.isEmpty { return nil }
         return callback
     }

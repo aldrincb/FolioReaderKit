@@ -253,7 +253,8 @@ class FREpubParser: NSObject, SSZipArchiveDelegate {
             }
             
             if tag.name == "dc:language" {
-                metadata.language = tag.value ?? ""
+                let language = tag.value ?? metadata.language
+                metadata.language = language != "en" ? language : metadata.language
             }
             
             if tag.name == "dc:creator" {
@@ -341,7 +342,7 @@ class FREpubParser: NSObject, SSZipArchiveDelegate {
     
     // MARK: - SSZipArchive delegate
     
-    func zipArchiveWillUnzipArchiveAtPath(path: String!, zipInfo: unz_global_info) {
+    func zipArchiveWillUnzipArchiveAtPath(path: String, zipInfo: unz_global_info) {
         if shouldRemoveEpub {
             do {
                 try NSFileManager.defaultManager().removeItemAtPath(epubPathToRemove!)
