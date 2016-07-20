@@ -6,7 +6,7 @@
 //  Copyright © 2016 FolioReader. All rights reserved.
 //
 
-import Cocoa
+import Foundation
 import SwiftyJSON
 
 class MUSDecoder: NSObject {
