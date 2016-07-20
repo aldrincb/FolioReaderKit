@@ -17,7 +17,7 @@ protocol AthenaeumSpanTrackerDelegate: class {
 }
 
 class AthenaeumSpanTracker: NSObject {
-    var currentSpan: String!
+//    var currentSpan: String!
     var currentChapterName: String!
     var currentMUS: JSON!
     
