@@ -327,6 +327,15 @@ class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UICollectio
         pagesForCurrentPage(currentPage)
         pageIndicatorView.reloadView(updateShadow: true)
     }
+    
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        // Athenaeum Span Tracker
+        AthenaeumSpanTracker.sharedInstance.readerStoppedScrolling()
+        AthenaeumSpanTracker.currentChapterName = getCurrentChapterName()
+        
+    }
 
     func configureNavBar() {
         let navBackground = isNight(readerConfig.nightModeMenuBackground, UIColor.whiteColor())

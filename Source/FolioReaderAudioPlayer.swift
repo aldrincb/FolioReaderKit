@@ -28,6 +28,7 @@ class FolioReaderAudioPlayer: NSObject, AVAudioPlayerDelegate, AVSpeechSynthesiz
     var currentFragment: String!
     var currentSmilFile: FRSmilFile!
     var currentAudioFile: String!
+    var currentAmbienceFile: String!
     var currentBeginTime: Double!
     var currentEndTime: Double!
     var playingTimer: NSTimer!
@@ -208,6 +209,21 @@ class FolioReaderAudioPlayer: NSObject, AVAudioPlayerDelegate, AVSpeechSynthesiz
     
     func playAmbience(href: String, fragmentID: String) {
         print("Playing href: \(href) fragment: \(fragmentID)")
+        
+        if (currentAmbienceFile == nil) {
+            
+        }
+        
+        let fileURL = "something" // DEFINE A SONG FILE PATH
+        let audioData = NSData(contentsOfFile: fileURL)
+        
+        if (audioData != nil) {
+            ambiencePlayer = try! AVAudioPlayer(data: audioData!)
+            ambiencePlayer.numberOfLoops = -1
+            ambiencePlayer.prepareToPlay()
+            ambiencePlayer.delegate = self
+        }
+        
     }
 
     func _autoPlayNextChapter() {

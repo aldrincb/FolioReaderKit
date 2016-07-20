@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SwiftyJSON
 
 protocol AthenaeumSpanTrackerDelegate: class {
     /**
@@ -17,14 +18,26 @@ protocol AthenaeumSpanTrackerDelegate: class {
 
 class AthenaeumSpanTracker: NSObject {
     var currentSpan: String!
+    var currentChapterName: String!
+    var currentMUS: JSON!
     
     weak var delegate: AthenaeumSpanTrackerDelegate!
     static let sharedInstance = AthenaeumSpanTracker()
 
     /**
+     Current Span Setter
+     */
+    var currentSpan: String = ""{
+        didSet {
+            print(currentSpan)
+        }
+    }
+    
+    
+    /**
      Reader stopped scrolling
      */
-    func readerStoppedScrolling () {
+    func readerStoppedScrolling() {
         self.delegate.readerStoppedScrolling()
     }
 }
