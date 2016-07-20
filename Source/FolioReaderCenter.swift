@@ -328,14 +328,6 @@ class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UICollectio
         pageIndicatorView.reloadView(updateShadow: true)
     }
     
-    override func viewDidAppear(animated: Bool) {
-        super.viewDidAppear(animated)
-        
-        // Athenaeum Span Tracker
-        AthenaeumSpanTracker.sharedInstance.readerStoppedScrolling()
-        AthenaeumSpanTracker.sharedInstance.currentChapterName = getCurrentChapterName()!
-        
-    }
 
     func configureNavBar() {
         let navBackground = isNight(readerConfig.nightModeMenuBackground, UIColor.whiteColor())
@@ -665,6 +657,10 @@ class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UICollectio
         // Set navigation title
         if let chapterName = getCurrentChapterName() {
             title = chapterName
+            
+            // Athenaeum Span Tracker
+            AthenaeumSpanTracker.sharedInstance.currentChapterName = chapterName
+            
         } else { title = ""}
         
         // Set pages
@@ -681,6 +677,9 @@ class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UICollectio
             }
             pagesForCurrentPage(page)
         }
+        
+        // Athenaeum Span Tracker
+        AthenaeumSpanTracker.sharedInstance.readerStoppedScrolling()
         
         if (completion != nil) { completion!() }
     }
