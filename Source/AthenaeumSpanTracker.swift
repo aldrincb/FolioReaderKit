@@ -18,7 +18,7 @@ protocol AthenaeumSpanTrackerDelegate: class {
 
 class AthenaeumSpanTracker: NSObject {
 //    var currentSpan: String!
-    var currentChapterName: String!
+//    var currentChapterName: String!
     var currentMUS: JSON!
     
     weak var delegate: AthenaeumSpanTrackerDelegate!
@@ -33,6 +33,16 @@ class AthenaeumSpanTracker: NSObject {
         }
     }
     
+
+    /**
+     Current Chapter Name Setter
+     */
+    var currentChapterName: String = ""{
+        didSet {
+            print(currentChapterName)
+        }
+    }
+
     
     /**
      Reader stopped scrolling
