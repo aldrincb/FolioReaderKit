@@ -333,7 +333,7 @@ class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UICollectio
         
         // Athenaeum Span Tracker
         AthenaeumSpanTracker.sharedInstance.readerStoppedScrolling()
-        AthenaeumSpanTracker.sharedInstance.currentChapterName = getCurrentChapterName() as String
+        AthenaeumSpanTracker.sharedInstance.currentChapterName = getCurrentChapterName()!
         
     }
 
