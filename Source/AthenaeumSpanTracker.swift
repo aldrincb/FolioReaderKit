@@ -39,7 +39,7 @@ class AthenaeumSpanTracker: NSObject {
      */
     var currentChapterName: String = ""{
         didSet {
-            print(currentChapterName)
+            print(_currentChapterName)
         }
     }
 
