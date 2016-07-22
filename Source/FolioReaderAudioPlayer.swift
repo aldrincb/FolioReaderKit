@@ -222,7 +222,7 @@ class FolioReaderAudioPlayer: NSObject, AVAudioPlayerDelegate, AVSpeechSynthesiz
         }
         
         // Get file
-        if songName.characters.length != 0 {
+        if songName.characters.count != 0 {
             let paths = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true)
             let documentsDirectory: AnyObject = paths[0]
             let dataPath = documentsDirectory.stringByAppendingPathComponent("\(songName).mp3")
