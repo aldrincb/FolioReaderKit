@@ -274,7 +274,7 @@ class FolioReaderPage: UICollectionViewCell, UIWebViewDelegate, UIGestureRecogni
             return false
         } else if url?.scheme == "visible-span" {
             let decoded = url?.absoluteString.stringByRemovingPercentEncoding as String!
-            let currentSpan = decoded.substringFromIndex(decoded.startIndex.advancedBy(13))
+            let currentSpan = decoded.substringFromIndex(decoded.startIndex.advancedBy(15))
             
             AthenaeumSpanTracker.sharedInstance.currentSpan = currentSpan
             FolioReader.sharedInstance.readerCenter.playAmbience(currentSpan)
