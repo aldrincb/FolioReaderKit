@@ -213,25 +213,38 @@ class FolioReaderAudioPlayer: NSObject, AVAudioPlayerDelegate, AVSpeechSynthesiz
         // TODO: Athenaeum
         // Get JSON from Athenaeum Span Tracker
         // Play song @ fragment
-        if let songName = AthenaeumSpanTracker.sharedInstance.currentMUS[fragmentID]["song"].string {
-            print(songName)
+        var songName;
+        if let t_songName = AthenaeumSpanTracker.sharedInstance.currentMUS[fragmentID]["song"].string {
+            print(t_songName)
+            songName = t_songName
         } else {
             print(AthenaeumSpanTracker.sharedInstance.currentMUS[fragmentID]["song"].error)
         }
         
-        if (currentAmbienceFile == nil) {
+        // Get file
+        let paths = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true)
+        let documentsDirectory: AnyObject = paths[0]
+        let dataPath = documentsDirectory.stringByAppendingPathComponent("\(songName).mp3")
+        var path: NSURL = NSURL.fileURLWithPath(dataPath)
+        
+        // Make asset
+        let asset = AVURLAsset(URL: path)
+        let playerItem = AVPlayerItem(asset: asset)
+        
+        // Play if not playing
+        if (currentAmbienceFile != songName) {
+            currentAmbienceFile = songName
             
+            if (playerItem != nil) {
+                ambiencePlayer = try! AVAudioPlayer(playerItem: playerItem)
+                ambiencePlayer.numberOfLoops = -1
+                ambiencePlayer.prepareToPlay()
+                ambiencePlayer.delegate = self
+                ambiencePlayer.play()
+            }
         }
         
-        let fileURL = "something" // DEFINE A SONG FILE PATH
-        let audioData = NSData(contentsOfFile: fileURL)
         
-        if (audioData != nil) {
-            ambiencePlayer = try! AVAudioPlayer(data: audioData!)
-            ambiencePlayer.numberOfLoops = -1
-            ambiencePlayer.prepareToPlay()
-            ambiencePlayer.delegate = self
-        }
         
     }
 
