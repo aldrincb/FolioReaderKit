@@ -213,7 +213,7 @@ class FolioReaderAudioPlayer: NSObject, AVAudioPlayerDelegate, AVSpeechSynthesiz
         // TODO: Athenaeum
         // Get JSON from Athenaeum Span Tracker
         // Play song @ fragment
-        var songName: String
+        var songName: String = ""
         if let t_songName = AthenaeumSpanTracker.sharedInstance.currentMUS[fragmentID]["song"].string {
             print(t_songName)
             songName = t_songName
@@ -222,22 +222,23 @@ class FolioReaderAudioPlayer: NSObject, AVAudioPlayerDelegate, AVSpeechSynthesiz
         }
         
         // Get file
-        let paths = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true)
-        let documentsDirectory: AnyObject = paths[0]
-        let dataPath = documentsDirectory.stringByAppendingPathComponent("\(songName).mp3")
-        var path: NSURL = NSURL.fileURLWithPath(dataPath)
-        
-        // Play if not playing
-        if (currentAmbienceFile != songName) {
-            currentAmbienceFile = songName
+        if songName.characters.length != 0 {
+            let paths = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true)
+            let documentsDirectory: AnyObject = paths[0]
+            let dataPath = documentsDirectory.stringByAppendingPathComponent("\(songName).mp3")
+            var path: NSURL = NSURL.fileURLWithPath(dataPath)
             
-            ambiencePlayer = try! AVAudioPlayer(contentsOfURL: path)
-            ambiencePlayer.numberOfLoops = -1
-            ambiencePlayer.prepareToPlay()
-            ambiencePlayer.delegate = self
-            ambiencePlayer.play()
+            // Play if not playing
+            if (currentAmbienceFile != songName) {
+                currentAmbienceFile = songName
+                
+                ambiencePlayer = try! AVAudioPlayer(contentsOfURL: path)
+                ambiencePlayer.numberOfLoops = -1
+                ambiencePlayer.prepareToPlay()
+                ambiencePlayer.delegate = self
+                ambiencePlayer.play()
+            }
         }
-        
         
         
     }
