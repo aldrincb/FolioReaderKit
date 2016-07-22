@@ -51,7 +51,7 @@ class AthenaeumSpanTracker: NSObject {
         didSet {
             print(currentChapterName)
             if (oldValue != currentChapterName) {
-                sampleBookTitle = currentBookTitle
+                let sampleBookTitle = currentBookTitle
                 
                 let file = "\(sampleBookTitle)/p001.mus" //this is the file. we will write to and read from it
                 
