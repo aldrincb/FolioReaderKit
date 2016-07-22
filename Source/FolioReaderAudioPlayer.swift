@@ -224,7 +224,7 @@ class FolioReaderAudioPlayer: NSObject, AVAudioPlayerDelegate, AVSpeechSynthesiz
         // Get file
         if songName.characters.count != 0 {
             let path = NSBundle.mainBundle().pathForResource(songName, ofType:"mp3")
-            var fileURL: NSURL = NSURL.fileURLWithPath(path)
+            var fileURL: NSURL = NSURL.fileURLWithPath(path!)
             
             // Play if not playing
             if (currentAmbienceFile != songName) {
