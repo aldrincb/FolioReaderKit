@@ -638,6 +638,11 @@ class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UICollectio
     }
     
     func updateCurrentPage(page: FolioReaderPage!, completion: (() -> Void)? = nil) {
+        // Athenaeum Span Tracker
+        if let title = book.title() {
+            AthenaeumSpanTracker.sharedInstance.currentBookTitle = title
+        }
+        
         if let page = page {
             currentPage = page
             previousPageNumber = page.pageNumber-1

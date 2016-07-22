@@ -23,11 +23,21 @@ class AthenaeumSpanTracker: NSObject {
     
     weak var delegate: AthenaeumSpanTrackerDelegate!
     static let sharedInstance = AthenaeumSpanTracker()
+    
+    
+    /**
+     Current Book Title
+     */
+    var currentBookTitle: String = "" {
+        didSet {
+            print(currentBookTitle)
+        }
+    }
 
     /**
      Current Span Setter
      */
-    var currentSpan: String = ""{
+    var currentSpan: String = "" {
         didSet {
             print(currentSpan)
         }
@@ -39,7 +49,26 @@ class AthenaeumSpanTracker: NSObject {
      */
     var currentChapterName: String = ""{
         didSet {
-            print(_currentChapterName)
+            print(currentChapterName)
+            if (oldValue != currentChapterName) {
+                sampleBookTitle = currentBookTitle
+                
+                let file = "\(sampleBookTitle)/p001.mus" //this is the file. we will write to and read from it
+                
+                if let dir = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.AllDomainsMask, true).first {
+                    let path = NSURL(fileURLWithPath: dir).URLByAppendingPathComponent(file)
+                    
+                    //reading
+                    do {
+                        let text2 = try NSString(contentsOfURL: path, encoding: NSUTF8StringEncoding)
+                        print("NEW MUS FILE")
+                        print("NEW MUS FILE")
+                        print("NEW MUS FILE")
+                    }
+                    catch {/* error handling here */}
+                    
+                }
+            }
         }
     }
 
