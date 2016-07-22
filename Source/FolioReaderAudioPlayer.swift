@@ -215,6 +215,8 @@ class FolioReaderAudioPlayer: NSObject, AVAudioPlayerDelegate, AVSpeechSynthesiz
         // Play song @ fragment
         if let songName = AthenaeumSpanTracker.sharedInstance.currentMUS[fragmentID]["song"].string {
             print(songName)
+        } else {
+            print(AthenaeumSpanTracker.sharedInstance.currentMUS[fragmentID]["song"].error)
         }
         
         if (currentAmbienceFile == nil) {
