@@ -212,7 +212,10 @@ class FolioReaderAudioPlayer: NSObject, AVAudioPlayerDelegate, AVSpeechSynthesiz
         
         // TODO: Athenaeum
         // Get JSON from Athenaeum Span Tracker
-        // Play song @ fragment 
+        // Play song @ fragment
+        if let songName = AthenaeumSpanTracker.sharedInstance.currentMUS[fragmentID]["song"].string {
+            print(songName)
+        }
         
         if (currentAmbienceFile == nil) {
             
