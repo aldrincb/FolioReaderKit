@@ -60,10 +60,15 @@ class AthenaeumSpanTracker: NSObject {
                     
                     //reading
                     do {
-                        let text2 = try NSString(contentsOfURL: path, encoding: NSUTF8StringEncoding)
+                        let jsonString = try NSString(contentsOfURL: path, encoding: NSUTF8StringEncoding)
                         print("NEW MUS FILE")
                         print("NEW MUS FILE")
                         print("NEW MUS FILE")
+                        
+                        if let dataFromString = jsonString.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false) {
+                            let json = JSON(data: dataFromString)
+                            currentMUS = json
+                        }
                     }
                     catch let error as NSError {
                         print(error.localizedDescription)

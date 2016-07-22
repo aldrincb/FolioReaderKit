@@ -210,6 +210,10 @@ class FolioReaderAudioPlayer: NSObject, AVAudioPlayerDelegate, AVSpeechSynthesiz
     func playAmbience(href: String, fragmentID: String) {
         print("Playing href: \(href) fragment: \(fragmentID)")
         
+        // TODO: Athenaeum
+        // Get JSON from Athenaeum Span Tracker
+        // Play song @ fragment 
+        
         if (currentAmbienceFile == nil) {
             
         }
