@@ -227,21 +227,15 @@ class FolioReaderAudioPlayer: NSObject, AVAudioPlayerDelegate, AVSpeechSynthesiz
         let dataPath = documentsDirectory.stringByAppendingPathComponent("\(songName).mp3")
         var path: NSURL = NSURL.fileURLWithPath(dataPath)
         
-        // Make asset
-        let asset = AVURLAsset(URL: path)
-        let playerItem = AVPlayerItem(asset: asset)
-        
         // Play if not playing
         if (currentAmbienceFile != songName) {
             currentAmbienceFile = songName
             
-            if (playerItem != nil) {
-                ambiencePlayer = try! AVAudioPlayer(playerItem: playerItem)
-                ambiencePlayer.numberOfLoops = -1
-                ambiencePlayer.prepareToPlay()
-                ambiencePlayer.delegate = self
-                ambiencePlayer.play()
-            }
+            ambiencePlayer = try! AVAudioPlayer(contentsOfURL: path)
+            ambiencePlayer.numberOfLoops = -1
+            ambiencePlayer.prepareToPlay()
+            ambiencePlayer.delegate = self
+            ambiencePlayer.play()
         }
         
         
