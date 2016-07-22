@@ -65,8 +65,9 @@ class AthenaeumSpanTracker: NSObject {
                         print("NEW MUS FILE")
                         print("NEW MUS FILE")
                     }
-                    catch {/* error handling here */}
-                    
+                    catch let error as NSError {
+                        print(error.localizedDescription)
+                    }
                 }
             }
         }
