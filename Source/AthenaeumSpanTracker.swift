@@ -45,15 +45,14 @@ class AthenaeumSpanTracker: NSObject {
     
 
     /**
-     Current Chapter Name Setter
+     Current Chapter HREF Setter
      */
-    var currentChapterName: String = ""{
+    var currentChapterHREF: String = ""{
         didSet {
-            print(currentChapterName)
-            if (oldValue != currentChapterName) {
-                let sampleBookTitle = currentBookTitle
+            print(currentChapterHREF)
+            if (oldValue != currentChapterHREF) {
                 
-                let file = "\(sampleBookTitle)/p001.mus" //this is the file. we will write to and read from it
+                let file = "\(currentBookTitle)/\(currentChapterHREF).mus" //this is the file. we will write to and read from it
                 
                 if let dir = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.AllDomainsMask, true).first {
                     let path = NSURL(fileURLWithPath: dir).URLByAppendingPathComponent(file)

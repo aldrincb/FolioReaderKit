@@ -642,6 +642,10 @@ class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UICollectio
         if let title = book.title() {
             AthenaeumSpanTracker.sharedInstance.currentBookTitle = title
         }
+        if let chapter = getCurrentChapter() {
+            let href = chapter != nil ? chapter!.href : ""
+            AthenaeumSpanTracker.sharedInstance.currentChapterHREF = href
+        }
         
         if let page = page {
             currentPage = page
@@ -662,10 +666,6 @@ class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UICollectio
         // Set navigation title
         if let chapterName = getCurrentChapterName() {
             title = chapterName
-            
-            // Athenaeum Span Tracker
-            AthenaeumSpanTracker.sharedInstance.currentChapterName = chapterName
-            
         } else { title = ""}
         
         // Set pages
