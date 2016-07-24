@@ -226,8 +226,7 @@ class FolioReaderAudioPlayer: NSObject, AVAudioPlayerDelegate, AVSpeechSynthesiz
             let documentsDirectory: AnyObject = paths[0]
             let songDirectory = documentsDirectory.stringByAppendingString("/Songs")
             let path = songDirectory.stringByAppendingString(songName)
-            var fileURL = NSURL.fileURLWithPath(path)
-            let audioData = NSData(contentsOfFile: fileURL)
+            let audioData = NSData(contentsOfFile: path)
             
             // Play if not playing
             if (currentAmbienceFile != songName) {
