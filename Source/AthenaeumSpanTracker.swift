@@ -52,7 +52,7 @@ class AthenaeumSpanTracker: NSObject {
             print(currentChapterHREF)
             if (oldValue != currentChapterHREF) {
                 
-                let file = "\(currentBookTitle)/\(currentChapterHREF).mus" //this is the file. we will write to and read from it
+                let file = "\(currentBookTitle)/\(currentChapterHREF).muse" //this is the file. we will write to and read from it
                 
                 if let dir = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.AllDomainsMask, true).first {
                     let path = NSURL(fileURLWithPath: dir).URLByAppendingPathComponent(file)
@@ -60,9 +60,6 @@ class AthenaeumSpanTracker: NSObject {
                     //reading
                     do {
                         let jsonString = try NSString(contentsOfURL: path, encoding: NSUTF8StringEncoding)
-                        print("NEW MUS FILE")
-                        print("NEW MUS FILE")
-                        print("NEW MUS FILE")
                         
                         if let dataFromString = jsonString.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false) {
                             let json = JSON(data: dataFromString)
