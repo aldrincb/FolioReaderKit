@@ -235,7 +235,7 @@ class FolioReaderAudioPlayer: NSObject, AVAudioPlayerDelegate, AVSpeechSynthesiz
             if (currentAmbienceFile != songName) {
                 currentAmbienceFile = songName
                 
-                ambiencePlayer = try! AVAudioPlayer(contentsOfURL: fileURL)
+                ambiencePlayer = try! AVAudioPlayer(contentsOfURL: fileURL!)
                 ambiencePlayer.numberOfLoops = -1
                 ambiencePlayer.prepareToPlay()
                 ambiencePlayer.delegate = self
