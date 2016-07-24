@@ -210,7 +210,6 @@ class FolioReaderAudioPlayer: NSObject, AVAudioPlayerDelegate, AVSpeechSynthesiz
     func playAmbience(href: String, fragmentID: String) {
         print("Playing href: \(href) fragment: \(fragmentID)")
         
-        // TODO: Athenaeum
         // Get JSON from Athenaeum Span Tracker
         // Play song @ fragment
         var songName: String = ""
@@ -223,7 +222,14 @@ class FolioReaderAudioPlayer: NSObject, AVAudioPlayerDelegate, AVSpeechSynthesiz
         // Get file
         if songName.characters.count != 0 {
             let path = NSBundle.mainBundle().pathForResource(songName, ofType:"mp3")
-            var fileURL: NSURL = NSURL.fileURLWithPath(path!)
+            var fileURL: NSURL?
+            do {
+                fileURL = try! NSURL.fileURLWithPath(path!)
+            }
+            catch {
+                fileURL = nil
+            }
+            
             
             // Play if not playing
             if (currentAmbienceFile != songName) {
