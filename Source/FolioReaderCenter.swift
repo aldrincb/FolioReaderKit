@@ -642,10 +642,9 @@ class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UICollectio
         if let title = book.title() {
             AthenaeumSpanTracker.sharedInstance.currentBookTitle = title
         }
-        if let chapter = getCurrentChapter() {
-            let href = chapter != nil ? chapter!.href : ""
-            AthenaeumSpanTracker.sharedInstance.currentChapterHREF = href
-        }
+        let chapter = getCurrentChapter()
+        let href = chapter != nil ? chapter!.href : ""
+        AthenaeumSpanTracker.sharedInstance.currentChapterHREF = href
         
         if let page = page {
             currentPage = page
