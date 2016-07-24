@@ -221,15 +221,18 @@ class FolioReaderAudioPlayer: NSObject, AVAudioPlayerDelegate, AVSpeechSynthesiz
         
         // Get file
         if songName.characters.count != 0 {
-            let path = NSBundle.mainBundle().pathForResource(songName, ofType:"mp3")
-            var fileURL: NSURL?
-            do {
-                fileURL = try! NSURL.fileURLWithPath(path!)
-            }
-            catch {
-                fileURL = nil
-            }
+//            NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+//            NSString *documentsDirectory = [paths objectAtIndex:0];
+//            NSString *path = [documentsDirectory stringByAppendingPathComponent:@"github.mp4"];
+            NSURL *url1 = [[NSURL alloc] initFileURLWithPath: path];
+            avPlayer = [AVPlayer playerWithURL:url1] ;
+            [self.avplayer play];
             
+            let paths = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true)
+            let documentsDirectory: AnyObject = paths[0]
+            let songDirectory = documentsDirectory.stringByAppendingString("/Songs")
+            let path = songDirectory.stringByAppendingString(songName)
+            var fileURL = NSURL.fileURLWithPath(path!)
             
             // Play if not playing
             if (currentAmbienceFile != songName) {
