@@ -224,7 +224,7 @@ class FolioReaderAudioPlayer: NSObject, AVAudioPlayerDelegate, AVSpeechSynthesiz
             
             let paths = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true)
             let documentsDirectory: AnyObject = paths[0]
-            let songDirectory = documentsDirectory.stringByAppendingString("/Songs")
+            let songDirectory = documentsDirectory.stringByAppendingString("/Songs/")
             let path = songDirectory.stringByAppendingString(songName)
             let audioData = NSData(contentsOfFile: path)
             
