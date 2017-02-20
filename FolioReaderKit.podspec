@@ -38,7 +38,7 @@ Pod::Spec.new do |s|
   s.dependency 'FontBlaster'
   s.dependency 'JSQWebViewController'
   s.dependency 'SubtleVolume'
-  s.dependency 'RealmSwift'
-  s.dependency 'SwiftyJSON'
+  s.dependency 'RealmSwift', '2.3.0'
+  s.dependency 'SwiftyJSON', '2.4.0'
   # s.dependency 'SMSegmentView'
 end
