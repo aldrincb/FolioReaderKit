@@ -10,17 +10,22 @@ import UIKit
 
 class FRResource: NSObject {
     var id: String!
-    var title: String!
+    var properties: String?
     var href: String!
     var fullHref: String!
     var mediaType: MediaType!
-    var mediaOverlay: String!
-    var inputEncoding: String!
+    var mediaOverlay: String?
 
     func basePath() -> String! {
         if href == nil || href.isEmpty { return nil }
-        var paths = fullHref.componentsSeparatedByString("/")
+        var paths = fullHref.components(separatedBy: "/")
         paths.removeLast()
-        return paths.joinWithSeparator("/")
+        return paths.joined(separator: "/")
     }
+}
+
+// MARK: Equatable
+
+func ==(lhs: FRResource, rhs: FRResource) -> Bool {
+    return lhs.id == rhs.id && lhs.href == rhs.href
 }

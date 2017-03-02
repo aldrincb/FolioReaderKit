@@ -10,298 +10,178 @@ import UIKit
 import FontBlaster
 
 var readerConfig: FolioReaderConfig!
-var epubPath: String?
 var book: FRBook!
 
-enum SlideOutState {
-    case BothCollapsed
-    case LeftPanelExpanded
-    case Expanding
-    
-    init () {
-        self = .BothCollapsed
-    }
-}
-
-protocol FolioReaderContainerDelegate: class {
-    /**
-    Notifies that the menu was expanded.
-    */
-    func container(didExpandLeftPanel sidePanel: FolioReaderSidePanel)
-    
-    /**
-    Notifies that the menu was closed.
-    */
-    func container(didCollapseLeftPanel sidePanel: FolioReaderSidePanel)
-    
-    /**
-    Notifies when the user selected some item on menu.
-    */
-    func container(sidePanel: FolioReaderSidePanel, didSelectRowAtIndexPath indexPath: NSIndexPath, withTocReference reference: FRTocReference)
-}
-
-class FolioReaderContainer: UIViewController, FolioReaderSidePanelDelegate {
-    weak var delegate: FolioReaderContainerDelegate!
+/// Reader container
+open class FolioReaderContainer: UIViewController {
     var centerNavigationController: UINavigationController!
-    var centerViewController: FolioReaderCenter!
-    var leftViewController: FolioReaderSidePanel!
+	var centerViewController: FolioReaderCenter!
     var audioPlayer: FolioReaderAudioPlayer!
-    var centerPanelExpandedOffset: CGFloat = 70
-    var currentState = SlideOutState()
     var shouldHideStatusBar = true
-    private var errorOnLoad = false
-    private var shouldRemoveEpub = true
-    
+    var shouldRemoveEpub = true
+    var epubPath: String!
+    fileprivate var errorOnLoad = false
+
     // MARK: - Init
     
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
+    /**
+     Init a Container
+     
+     - parameter config:     A instance of `FolioReaderConfig`
+     - parameter path:       The ePub path on system
+     - parameter removeEpub: Should delete the original file after unzip? Default to `true` so the ePub will be unziped only once.
+     
+     - returns: `self`, initialized using the `FolioReaderConfig`.
+     */
+    public init(withConfig config: FolioReaderConfig, epubPath path: String, removeEpub: Bool = true) {
+        super.init(nibName: nil, bundle: Bundle.frameworkBundle())
+        
+        readerConfig = config
+        epubPath = path
+        shouldRemoveEpub = removeEpub
+        
+		initialization()
     }
     
-    init(config configOrNil: FolioReaderConfig!, epubPath epubPathOrNil: String? = nil, removeEpub: Bool) {
-        readerConfig = configOrNil
-        epubPath = epubPathOrNil
-        shouldRemoveEpub = removeEpub
-        super.init(nibName: nil, bundle: NSBundle.frameworkBundle())
+    required public init?(coder aDecoder: NSCoder) {
+		super.init(coder: aDecoder)
         
-        // Init with empty book
+        initialization()
+    }
+    
+    /**
+     Common Initialization
+     */
+    fileprivate func initialization() {
+        FolioReader.shared.readerContainer = self
+        
         book = FRBook()
         
         // Register custom fonts
-        FontBlaster.blast(NSBundle.frameworkBundle())
-        
+        FontBlaster.blast(bundle: Bundle.frameworkBundle())
+
         // Register initial defaults
-        FolioReader.defaults.registerDefaults([
-            kCurrentFontFamily: 0,
+        FolioReader.defaults.register(defaults: [
+            kCurrentFontFamily: FolioReaderFont.andada.rawValue,
             kNightMode: false,
             kCurrentFontSize: 2,
             kCurrentAudioRate: 1,
             kCurrentHighlightStyle: 0,
-            kCurrentMediaOverlayStyle: MediaOverlayStyle.Default.rawValue
-        ])
+            kCurrentTOCMenu: 0,
+            kCurrentMediaOverlayStyle: MediaOverlayStyle.default.rawValue,
+            kCurrentScrollDirection: FolioReaderScrollDirection.defaultVertical.rawValue
+            ])
+    }
+    
+    /**
+     Set the `FolioReaderConfig` and epubPath.
+     
+     - parameter config:     A instance of `FolioReaderConfig`
+     - parameter path:       The ePub path on system
+     - parameter removeEpub: Should delete the original file after unzip? Default to `true` so the ePub will be unziped only once.
+     */
+    open func setupConfig(_ config: FolioReaderConfig, epubPath path: String, removeEpub: Bool = true) {
+        readerConfig = config
+        epubPath = path
+        shouldRemoveEpub = removeEpub
     }
     
     // MARK: - View life cicle
     
-    override func viewDidLoad() {
+    override open func viewDidLoad() {
         super.viewDidLoad()
         
+        readerConfig.canChangeScrollDirection = isDirection(readerConfig.canChangeScrollDirection, readerConfig.canChangeScrollDirection, false)
+        
+        // If user can change scroll direction use the last saved
+        if readerConfig.canChangeScrollDirection {
+            var scrollDirection = FolioReaderScrollDirection(rawValue: FolioReader.currentScrollDirection) ?? .vertical
+
+            if (scrollDirection == .defaultVertical && readerConfig.scrollDirection != .defaultVertical) {
+                scrollDirection = readerConfig.scrollDirection
+            }
+
+            readerConfig.scrollDirection = scrollDirection
+        }
+
+		readerConfig.shouldHideNavigationOnTap = ((readerConfig.hideBars == true) ? true : readerConfig.shouldHideNavigationOnTap)
+
         centerViewController = FolioReaderCenter()
-        centerViewController.folioReaderContainer = self
-        FolioReader.sharedInstance.readerCenter = centerViewController
+        FolioReader.shared.readerCenter = centerViewController
         
         centerNavigationController = UINavigationController(rootViewController: centerViewController)
         centerNavigationController.setNavigationBarHidden(readerConfig.shouldHideNavigationOnTap, animated: false)
         view.addSubview(centerNavigationController.view)
         addChildViewController(centerNavigationController)
-        centerNavigationController.didMoveToParentViewController(self)
-        
-        // Add gestures
-        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(FolioReaderContainer.handleTapGesture(_:)))
-        tapGestureRecognizer.numberOfTapsRequired = 1
-        centerNavigationController.view.addGestureRecognizer(tapGestureRecognizer)
-        
-        let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(FolioReaderContainer.handlePanGesture(_:)))
-        centerNavigationController.view.addGestureRecognizer(panGestureRecognizer)
+        centerNavigationController.didMove(toParentViewController: self)
+
+		if (readerConfig.hideBars == true) {
+			readerConfig.shouldHideNavigationOnTap = false
+			self.navigationController?.navigationBar.isHidden = true
+			self.centerViewController.pageIndicatorHeight = 0
+		}
 
         // Read async book
-        if (epubPath != nil) {
-            let priority = DISPATCH_QUEUE_PRIORITY_HIGH
-            dispatch_async(dispatch_get_global_queue(priority, 0), { () -> Void in
-                
-                var isDir: ObjCBool = false
-                let fileManager = NSFileManager.defaultManager()
-                
-                if fileManager.fileExistsAtPath(epubPath!, isDirectory:&isDir) {
-                    if isDir {
-                        book = FREpubParser().readEpub(filePath: epubPath!)
-                    } else {
-                        book = FREpubParser().readEpub(epubPath: epubPath!, removeEpub: self.shouldRemoveEpub)
-                    }
-                }
-                else {
-                    print("Epub file does not exist.")
-                    self.errorOnLoad = true
-                }
-                
-                FolioReader.sharedInstance.isReaderOpen = true
-                
-                if !self.errorOnLoad {
-                    // Reload data
-                    dispatch_async(dispatch_get_main_queue(), {
-                        self.centerViewController.reloadData()
-                        self.addLeftPanelViewController()
-                        self.addAudioPlayer()
-                        
-                        // Open panel if does not have a saved point
-                        if FolioReader.defaults.valueForKey(kBookId) == nil {
-                            self.toggleLeftPanel()
-                        }
-                        
-                        FolioReader.sharedInstance.isReaderReady = true
-                    })
-                }
-            })
-        } else {
+        guard !epubPath.isEmpty else {
             print("Epub path is nil.")
             errorOnLoad = true
+            return
+        }
+        
+        DispatchQueue.global(qos: .userInitiated).async {
+            if let parsedBook = FREpubParser().readEpub(epubPath: self.epubPath, removeEpub: self.shouldRemoveEpub) {
+                book = parsedBook
+            } else {
+                self.errorOnLoad = true
+            }
+            
+            guard !self.errorOnLoad else { return }
+            
+            FolioReader.isReaderOpen = true
+            
+            // Reload data
+            DispatchQueue.main.async(execute: {
+                
+                // Add audio player if needed
+                if book.hasAudio() || readerConfig.enableTTS {
+                    self.addAudioPlayer()
+                }
+                
+                self.centerViewController.reloadData()
+                
+                FolioReader.isReaderReady = true
+                FolioReader.shared.delegate?.folioReader?(FolioReader.shared, didFinishedLoading: book)
+            })
         }
     }
     
-    override func viewDidAppear(animated: Bool) {
+    override open func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        showShadowForCenterViewController(true)
         
         if errorOnLoad {
-            dismissViewControllerAnimated(true, completion: nil)
+            dismiss()
         }
     }
     
-    // MARK: CenterViewController delegate methods
-    
-    func toggleLeftPanel() {
-        let notAlreadyExpanded = (currentState != .LeftPanelExpanded)
-        
-        if notAlreadyExpanded {
-            addLeftPanelViewController()
-        }
-        
-        animateLeftPanel(shouldExpand: notAlreadyExpanded)
-    }
-    
-    func collapseSidePanels() {
-        switch (currentState) {
-        case .LeftPanelExpanded:
-            toggleLeftPanel()
-        default:
-            break
-        }
-    }
-    
-    func addLeftPanelViewController() {
-        if (leftViewController == nil) {
-            leftViewController = FolioReaderSidePanel()
-            leftViewController.delegate = self
-            addChildSidePanelController(leftViewController!)
-            
-            FolioReader.sharedInstance.readerSidePanel = leftViewController
-        }
-    }
-    
-    func addChildSidePanelController(sidePanelController: FolioReaderSidePanel) {
-        view.insertSubview(sidePanelController.view, atIndex: 0)
-        addChildViewController(sidePanelController)
-        sidePanelController.didMoveToParentViewController(self)
-    }
-    
-    func animateLeftPanel(shouldExpand shouldExpand: Bool) {
-        if (shouldExpand) {
-            
-            if let width = pageWidth {
-                if isPad {
-                    centerPanelExpandedOffset = width-400
-                } else {
-                    // Always get the device width
-                    let w = UIInterfaceOrientationIsPortrait(UIApplication.sharedApplication().statusBarOrientation) ? UIScreen.mainScreen().bounds.size.width : UIScreen.mainScreen().bounds.size.height
-                    
-                    centerPanelExpandedOffset = width-(w-70)
-                }
-            }
-            
-            currentState = .LeftPanelExpanded
-            delegate.container(didExpandLeftPanel: leftViewController)
-            animateCenterPanelXPosition(targetPosition: CGRectGetWidth(centerNavigationController.view.frame) - centerPanelExpandedOffset)
-            
-            // Reload to update current reading chapter
-            leftViewController.tableView.reloadData()
-        } else {
-            animateCenterPanelXPosition(targetPosition: 0) { finished in
-                self.delegate.container(didCollapseLeftPanel: self.leftViewController)
-                self.currentState = .BothCollapsed
-            }
-        }
-    }
-    
-    func animateCenterPanelXPosition(targetPosition targetPosition: CGFloat, completion: ((Bool) -> Void)! = nil) {
-        UIView.animateWithDuration(0.3, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
-            self.centerNavigationController.view.frame.origin.x = targetPosition
-            }, completion: completion)
-    }
-    
-    func showShadowForCenterViewController(shouldShowShadow: Bool) {
-        if (shouldShowShadow) {
-            centerNavigationController.view.layer.shadowOpacity = 0.2
-            centerNavigationController.view.layer.shadowRadius = 6
-            centerNavigationController.view.layer.shadowPath = UIBezierPath(rect: centerNavigationController.view.bounds).CGPath
-            centerNavigationController.view.clipsToBounds = false
-        } else {
-            centerNavigationController.view.layer.shadowOpacity = 0
-            centerNavigationController.view.layer.shadowRadius = 0
-        }
-    }
-    
-    func addAudioPlayer(){
-        // @NOTE: should the audio player only be initialized if the epub has audio smil?
+    /**
+     Initialize the media player
+     */
+    func addAudioPlayer() {
         audioPlayer = FolioReaderAudioPlayer()
-
-        FolioReader.sharedInstance.readerAudioPlayer = audioPlayer;
-    }
-
-    // MARK: Gesture recognizer
-    
-    func handleTapGesture(recognizer: UITapGestureRecognizer) {
-        if currentState == .LeftPanelExpanded {
-            toggleLeftPanel()
-        }
-    }
-    
-    func handlePanGesture(recognizer: UIPanGestureRecognizer) {
-        guard readerConfig.scrollDirection == .vertical else { return }
-        
-        let gestureIsDraggingFromLeftToRight = (recognizer.velocityInView(view).x > 0)
-        
-        switch(recognizer.state) {
-        case .Began:
-            if currentState == .BothCollapsed && gestureIsDraggingFromLeftToRight {
-                currentState = .Expanding
-            }
-        case .Changed:
-            if currentState == .LeftPanelExpanded || currentState == .Expanding && recognizer.view!.frame.origin.x >= 0 {
-                recognizer.view!.center.x = recognizer.view!.center.x + recognizer.translationInView(view).x
-                recognizer.setTranslation(CGPointZero, inView: view)
-            }
-        case .Ended:
-            if leftViewController != nil {
-                let gap = 20 as CGFloat
-                let xPos = recognizer.view!.frame.origin.x
-                let canFinishAnimation = gestureIsDraggingFromLeftToRight && xPos > gap ? true : false
-                animateLeftPanel(shouldExpand: canFinishAnimation)
-            }
-        default:
-            break
-        }
+        FolioReader.shared.readerAudioPlayer = audioPlayer;
     }
     
     // MARK: - Status Bar
     
-    override func prefersStatusBarHidden() -> Bool {
+    override open var prefersStatusBarHidden: Bool {
         return readerConfig.shouldHideNavigationOnTap == false ? false : shouldHideStatusBar
     }
     
-    override func preferredStatusBarUpdateAnimation() -> UIStatusBarAnimation {
-        return UIStatusBarAnimation.Slide
+    override open var preferredStatusBarUpdateAnimation: UIStatusBarAnimation {
+        return UIStatusBarAnimation.slide
     }
     
-    override func preferredStatusBarStyle() -> UIStatusBarStyle {
-        return isNight(.LightContent, .Default)
-    }
-    
-    
-    
-    // MARK: - Side Panel delegate
-    
-    func sidePanel(sidePanel: FolioReaderSidePanel, didSelectRowAtIndexPath indexPath: NSIndexPath, withTocReference reference: FRTocReference) {
-        collapseSidePanels()
-        delegate.container(sidePanel, didSelectRowAtIndexPath: indexPath, withTocReference: reference)
+    override open var preferredStatusBarStyle: UIStatusBarStyle {
+        return isNight(.lightContent, .default)
     }
 }
