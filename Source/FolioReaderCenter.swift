@@ -815,6 +815,13 @@ open class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UIColl
     
     // MARK: - Audio Playing
 
+    func playAmbience(fragmentID: String){
+        
+        let chapter = getCurrentChapter()
+        let href = chapter != nil ? chapter!.href : "";
+        FolioReader.shared.readerAudioPlayer?.playAmbience(href: href!, fragmentID: fragmentID)
+    }
+    
     func audioMark(href: String, fragmentID: String) {
         changePageWith(href: href, andAudioMarkID: fragmentID)
     }
@@ -1015,6 +1022,9 @@ open class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UIColl
     open func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         recentlyScrolledTimer = Timer(timeInterval:recentlyScrolledDelay, target: self, selector: #selector(FolioReaderCenter.clearRecentlyScrolled), userInfo: nil, repeats: false)
         RunLoop.current.add(recentlyScrolledTimer, forMode: RunLoopMode.commonModes)
+        
+        // Athenaeum Span Tracker
+        AthenaeumSpanTracker.sharedInstance.readerStoppedScrolling()
     }
 
     func clearRecentlyScrolled() {
@@ -1151,6 +1161,9 @@ extension FolioReaderCenter: FolioReaderPageDelegate {
 			let offsetPoint = self.currentWebViewScrollPositions[page.pageNumber - 1] {
 				page.webView.scrollView.setContentOffset(offsetPoint, animated: false)
 		}
+        
+        // Athenaeum Span Tracker
+        AthenaeumSpanTracker.sharedInstance.readerStoppedScrolling()
 
 		// Pass the event to the centers `pageDelegate`
 		pageDelegate?.pageDidLoad?(page)

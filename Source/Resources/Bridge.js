@@ -225,6 +225,16 @@ function findElementWithIDInView() {
     return null
 }
 
+/**
+ Get current span
+ */
+function getSpan() {
+    var node = null
+    node = findElementWithIDInView()
+    
+    var URLBase = "visible-span://"
+    window.location = URLBase + (node.id?encodeURIComponent(node.id):"")
+}
 
 /**
  Play Audio - called by native UIMenuController when a user selects a bit of text and presses "play"

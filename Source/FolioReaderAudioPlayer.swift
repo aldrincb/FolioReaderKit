@@ -15,10 +15,12 @@ open class FolioReaderAudioPlayer: NSObject {
     var synthesizer: AVSpeechSynthesizer!
     var playing = false
     var player: AVAudioPlayer?
+    var ambiencePlayer: AVAudioPlayer?
     var currentHref: String!
     var currentFragment: String!
     var currentSmilFile: FRSmilFile!
     var currentAudioFile: String!
+    var currentAmbienceFile: String!
     var currentBeginTime: Double!
     var currentEndTime: Double!
     var playingTimer: Timer!
@@ -201,6 +203,46 @@ open class FolioReaderAudioPlayer: NSObject {
                 startPlayerTimer()
             }
         }
+    }
+    
+    /**
+     Play Ambience
+     */
+    func playAmbience(href: String, fragmentID: String) {
+        print("Playing href: \(href) fragment: \(fragmentID)")
+        
+        // Get JSON from Athenaeum Span Tracker
+        // Play song @ fragment
+        var songName: String = ""
+        if let songID = AthenaeumSpanTracker.sharedInstance.currentMUS["spans"][fragmentID].string {
+            if let t_songName = AthenaeumSpanTracker.sharedInstance.currentMUS["song_info"][songID]["res_uri"].string {
+                songName = t_songName
+            }
+        }
+        
+        // Get file
+        if songName.characters.count != 0 {
+            
+            let paths = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.documentDirectory, FileManager.SearchPathDomainMask.userDomainMask, true)
+            let documentsDirectory: AnyObject = paths[0] as AnyObject
+            let songDirectory = documentsDirectory.appending("/Songs/")
+            let path = songDirectory.appending(songName)
+      
+            let audioData = NSData(contentsOfFile: path)
+            
+            // Play if not playing
+            if (currentAmbienceFile != songName) {
+                currentAmbienceFile = songName
+                
+                ambiencePlayer = try! AVAudioPlayer(data: audioData! as Data)
+                ambiencePlayer?.numberOfLoops = -1
+                ambiencePlayer?.prepareToPlay()
+                ambiencePlayer?.delegate = self
+                ambiencePlayer?.play()
+            }
+        }
+        
+        
     }
 
     func _autoPlayNextChapter() {

@@ -29,7 +29,7 @@ import JSQWebViewController
 	@objc optional func pageDidLoad(_ page: FolioReaderPage)
 }
 
-open class FolioReaderPage: UICollectionViewCell, UIWebViewDelegate, UIGestureRecognizerDelegate {
+open class FolioReaderPage: UICollectionViewCell, UIWebViewDelegate, UIGestureRecognizerDelegate, AthenaeumSpanTrackerDelegate {
     
     weak var delegate: FolioReaderPageDelegate?
 	/// The index of the current page. Note: The index start at 1!
@@ -70,6 +70,9 @@ open class FolioReaderPage: UICollectionViewCell, UIWebViewDelegate, UIGestureRe
         tapGestureRecognizer.numberOfTapsRequired = 1
         tapGestureRecognizer.delegate = self
         webView.addGestureRecognizer(tapGestureRecognizer)
+        
+        // Athenaeum Span Tracker
+        AthenaeumSpanTracker.sharedInstance.delegate = self
     }
 
     required public init?(coder aDecoder: NSCoder) {
@@ -115,6 +118,11 @@ open class FolioReaderPage: UICollectionViewCell, UIWebViewDelegate, UIGestureRe
         webView.loadHTMLString(tempHtmlContent, baseURL: baseURL)
     }
 
+    // MARK: - AthenaeumSpanTrackerDelegate
+    func readerStoppedScrolling() {
+        webView.js("getSpan()")
+    }
+    
 	// MARK: - Highlights
 
 	fileprivate func htmlContentWithInsertHighlights(_ htmlContent: String) -> String {
@@ -261,7 +269,15 @@ open class FolioReaderPage: UICollectionViewCell, UIWebViewDelegate, UIGestureRe
                 FolioReader.shared.readerCenter?.present(nav, animated: true, completion: nil)
             }
             return false
-		} else {
+        } else if url.scheme == "visible-span" {
+            guard let decoded = url.absoluteString.removingPercentEncoding else { return false }
+            let currentSpan = decoded.substring(from: decoded.index(decoded.startIndex, offsetBy: 15))
+            
+            AthenaeumSpanTracker.sharedInstance.currentSpan = currentSpan
+            FolioReader.shared.readerCenter?.playAmbience(fragmentID: currentSpan)
+            
+            return false
+        } else {
 			// Check if the url is a custom class based onClick listerner
 			var isClassBasedOnClickListenerScheme = false
 			for listener in readerConfig.classBasedOnClickListeners {
