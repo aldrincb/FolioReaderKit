@@ -52,22 +52,27 @@ class AthenaeumSpanTracker: NSObject {
             print(currentChapterHREF)
             if (oldValue != currentChapterHREF) {
                 
-                let file = "\(currentBookTitle)/\(currentChapterHREF).muse" //this is the file. we will write to and read from it
                 
-                if let dir = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.documentDirectory, FileManager.SearchPathDomainMask.allDomainsMask, true).first {
-                    let path = NSURL(fileURLWithPath: dir).appendingPathComponent(file)!
-                    
-                    //reading
-                    do {
-                        let jsonString = try NSString(contentsOf: path, encoding: String.Encoding.utf8.rawValue)
-                        
-                        if let dataFromString = jsonString.data(using: String.Encoding.utf8.rawValue, allowLossyConversion: false) {
-                            let json = JSON(data: dataFromString)
-                            currentMUS = json
+                let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
+                let documentDirectory = paths[0].appending("/\(currentBookTitle)")
+                
+                let fileManager = FileManager.default
+                if let enumerator = fileManager.enumerator(atPath: documentDirectory) {
+                    while let element = enumerator.nextObject() as? String {
+                        if element.hasSuffix("\(currentChapterHREF).muse") { // checks the extension
+                            
+                            do {
+                                let jsonString = try NSString(contentsOf: URL(string: element)!, encoding: String.Encoding.utf8.rawValue)
+                                
+                                if let dataFromString = jsonString.data(using: String.Encoding.utf8.rawValue, allowLossyConversion: false) {
+                                    let json = JSON(data: dataFromString)
+                                    currentMUS = json
+                                }
+                            }
+                            catch let error as NSError {
+                                print(error.localizedDescription)
+                            }
                         }
-                    }
-                    catch let error as NSError {
-                        print(error.localizedDescription)
                     }
                 }
             }
