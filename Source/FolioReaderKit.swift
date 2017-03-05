@@ -204,7 +204,12 @@ open class FolioReader: NSObject {
     /**
      Present a Folio Reader for a Parent View Controller.
      */
-    open class func presentReader(parentViewController: UIViewController, withEpubPath epubPath: String, andConfig config: FolioReaderConfig, shouldRemoveEpub: Bool = true, animated: Bool = true) {
+    open class func presentReader(parentViewController: UIViewController, withBook book: ATNMBook, andConfig config: FolioReaderConfig, shouldRemoveEpub: Bool = true, animated: Bool = true) {
+        let paths = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.documentDirectory, FileManager.SearchPathDomainMask.userDomainMask, true)
+        let documentsDirectory: AnyObject = paths[0] as AnyObject
+        let epubPath = documentsDirectory.appending("/epubs/\(book.epubFileName)")
+        
+        AthenaeumSpanTracker.sharedInstance.currentBookTitle = book.epubFileName.components(separatedBy: ".").first!
         let reader = FolioReaderContainer(withConfig: config, epubPath: epubPath, removeEpub: shouldRemoveEpub)
         FolioReader.shared.readerContainer = reader
         parentViewController.present(reader, animated: animated, completion: nil)
