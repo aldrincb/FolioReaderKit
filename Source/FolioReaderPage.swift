@@ -120,7 +120,7 @@ open class FolioReaderPage: UICollectionViewCell, UIWebViewDelegate, UIGestureRe
 
     // MARK: - AthenaeumSpanTrackerDelegate
     func readerStoppedScrolling() {
-        webView.js("getSpan()")
+        webView.js("getMuseID()")
     }
     
 	// MARK: - Highlights

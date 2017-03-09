@@ -8,6 +8,7 @@
 
 import UIKit
 import ZFDragableModalTransition
+import SubtleVolume
 
 let reuseIdentifier = "Cell"
 var pageWidth: CGFloat!
@@ -55,6 +56,7 @@ open class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UIColl
     var collectionView: UICollectionView!
     let collectionViewLayout = UICollectionViewFlowLayout()
     var loadingView: UIActivityIndicatorView!
+    var volume: SubtleVolume!
     var pages: [String]!
     var totalPages: Int!
     var tempFragment: String?
@@ -160,6 +162,14 @@ open class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UIColl
 		if let scrollScrubber = scrollScrubber {
 			view.addSubview(scrollScrubber.slider)
 		}
+        
+        // Subtle Volume
+        volume = SubtleVolume(style: .plain)
+        volume.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 8)
+        volume.barTintColor = readerConfig.tintColor
+        volume.barBackgroundColor = UIColor.white.withAlphaComponent(0.3)
+        volume.animation = .fadeIn
+        view.addSubview(volume)
     }
     
     override open func viewWillAppear(_ animated: Bool) {
@@ -552,6 +562,14 @@ open class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UIColl
     }
     
     func updateCurrentPage(_ page: FolioReaderPage? = nil, completion: (() -> Void)? = nil) {
+        // Athenaeum Span Tracker
+//        if let title = book.title() {
+//            AthenaeumSpanTracker.sharedInstance.currentBookTitle = title
+//        }
+        let chapter = getCurrentChapter()
+        let href = chapter != nil ? chapter!.href : ""
+        AthenaeumSpanTracker.sharedInstance.currentChapterHREF = href!
+        
         if let page = page {
             currentPage = page
             previousPageNumber = page.pageNumber-1

@@ -215,8 +215,10 @@ open class FolioReaderAudioPlayer: NSObject {
         // Play song @ fragment
         var songName: String = ""
         if let songID = AthenaeumSpanTracker.sharedInstance.currentMUS["spans"][fragmentID].string {
-            if let t_songName = AthenaeumSpanTracker.sharedInstance.currentMUS["song_info"][songID]["res_uri"].string {
-                songName = t_songName
+            if let t_songResourceURI = AthenaeumSpanTracker.sharedInstance.currentMUS["song_info"][songID]["res_uri"].string {
+                let URIComponents = t_songResourceURI.components(separatedBy: ":")
+                let URIPath = URIComponents.last
+                songName = (URIPath?.components(separatedBy: "/").last)!
             }
         }
         

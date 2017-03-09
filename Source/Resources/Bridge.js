@@ -226,14 +226,51 @@ function findElementWithIDInView() {
 }
 
 /**
- Get current span
+ Athenaeum Muse ID
  */
-function getSpan() {
+function findElementWithMuseIDInView() {
+    
+    if(audioMarkClass) {
+        // attempt to find an existing "audio mark"
+        var el = document.querySelector("."+audioMarkClass)
+        
+        // if that existing audio mark exists and is in view, use it
+        if( el && el.offsetTop > document.body.scrollTop && el.offsetTop < (window.innerHeight + document.body.scrollTop))
+            return el
+    }
+    
+    var els = document.querySelectorAll("p[data-mid]")
+    
+    for(indx in els) {
+        var element = els[indx];
+        
+        // Horizontal scroll
+        if (document.body.scrollTop == 0) {
+            var elLeft = document.body.clientWidth * Math.floor(element.offsetTop / window.innerHeight);
+            // document.body.scrollLeft = elLeft;
+            
+            if (elLeft == document.body.scrollLeft) {
+                return element;
+            }
+            
+            // Vertical
+        } else if(element.offsetTop > document.body.scrollTop) {
+            return element;
+        }
+    }
+    
+    return null
+}
+
+/**
+ Get current muse id
+ */
+function getMuseID() {
     var node = null
-    node = findElementWithIDInView()
+    node = findElementWithMuseIDInView()
     
     var URLBase = "visible-span://"
-    window.location = URLBase + (node.id?encodeURIComponent(node.id):"")
+    window.location = URLBase + (node.dataset.mid?encodeURIComponent(node.dataset.mid):"")
 }
 
 /**

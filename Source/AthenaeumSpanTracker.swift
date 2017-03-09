@@ -62,9 +62,9 @@ class AthenaeumSpanTracker: NSObject {
                         if element.hasSuffix("\(currentChapterHREF).muse") { // checks the extension
                             
                             do {
-                                let jsonString = try NSString(contentsOf: URL(string: element)!, encoding: String.Encoding.utf8.rawValue)
+                                let jsonString = try String(contentsOfFile: documentDirectory.appending("/\(element)"), encoding: .utf8)
                                 
-                                if let dataFromString = jsonString.data(using: String.Encoding.utf8.rawValue, allowLossyConversion: false) {
+                                if let dataFromString = jsonString.data(using: String.Encoding(rawValue: String.Encoding.utf8.rawValue), allowLossyConversion: false) {
                                     let json = JSON(data: dataFromString)
                                     currentMUS = json
                                 }
