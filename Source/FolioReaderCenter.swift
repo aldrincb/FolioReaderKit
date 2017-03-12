@@ -837,6 +837,7 @@ open class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UIColl
         
         let chapter = getCurrentChapter()
         let href = chapter != nil ? chapter!.href : "";
+        AthenaeumSpanTracker.sharedInstance.currentChapterHREF = href!
         FolioReader.shared.readerAudioPlayer?.playAmbience(href: href!, fragmentID: fragmentID)
     }
     

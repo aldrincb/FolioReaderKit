@@ -214,12 +214,16 @@ open class FolioReaderAudioPlayer: NSObject {
         // Get JSON from Athenaeum Span Tracker
         // Play song @ fragment
         var songName: String = ""
-        if let songID = AthenaeumSpanTracker.sharedInstance.currentMUS["spans"][fragmentID].string {
-            if let t_songResourceURI = AthenaeumSpanTracker.sharedInstance.currentMUS["song_info"][songID]["res_uri"].string {
-                let URIComponents = t_songResourceURI.components(separatedBy: ":")
-                let URIPath = URIComponents.last
-                songName = (URIPath?.components(separatedBy: "/").last)!
+        if AthenaeumSpanTracker.sharedInstance.currentMUS != nil {
+            if let songID = AthenaeumSpanTracker.sharedInstance.currentMUS["spans"][fragmentID].string {
+                if let t_songResourceURI = AthenaeumSpanTracker.sharedInstance.currentMUS["song_info"][songID]["res_uri"].string {
+                    let URIComponents = t_songResourceURI.components(separatedBy: ":")
+                    let URIPath = URIComponents.last
+                    songName = (URIPath?.components(separatedBy: "/").last)!
+                }
             }
+        } else {
+            return
         }
         
         // Get file
@@ -229,6 +233,12 @@ open class FolioReaderAudioPlayer: NSObject {
             let documentsDirectory: AnyObject = paths[0] as AnyObject
             let songDirectory = documentsDirectory.appending("/Songs/")
             let path = songDirectory.appending(songName)
+            
+            // Check if song already exists
+            let fileExists = FileManager().fileExists(atPath: path)
+            if (!fileExists) {
+                return
+            }
       
             let audioData = NSData(contentsOfFile: path)
             
