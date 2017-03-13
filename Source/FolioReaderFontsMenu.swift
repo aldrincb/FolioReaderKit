@@ -241,7 +241,8 @@ class FolioReaderFontsMenu: UIViewController, SMSegmentViewDelegate, UIGestureRe
             scrollDirection = readerConfig.scrollDirection
         }
 
-        layoutDirection.selectSegmentAtIndex(scrollDirection?.rawValue ?? 0)
+//        layoutDirection.selectSegmentAtIndex(scrollDirection?.rawValue ?? 0)
+        layoutDirection.selectSegmentAtIndex(0)
         menuView.addSubview(layoutDirection)
     }
     

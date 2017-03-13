@@ -250,6 +250,7 @@ open class FolioReaderAudioPlayer: NSObject {
                 ambiencePlayer?.numberOfLoops = -1
                 ambiencePlayer?.prepareToPlay()
                 ambiencePlayer?.delegate = self
+                ambiencePlayer?.volume = 0.7
                 ambiencePlayer?.play()
             }
         }
